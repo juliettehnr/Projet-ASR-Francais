@@ -1,12 +1,20 @@
 import os
+import argparse
 from glob import glob
 from faster_whisper import WhisperModel
 
-# Chemins vers les dossiers
-audio_dir = "./audios"
-output_dir = "./transcriptions_model"
+# Chemin des dossiers
+parser = argparse.ArgumentParser(description="Transcrire des fichiers audio avec Faster Whisper")
+parser.add_argument("--input_dir", "-i", type=str, required=True, help="Chemin du dossier contenant les fichiers audio (WAV/MP3)")
+parser.add_argument("--output_dir", "-o", type=str, required=True, help="Chemin du dossier où enregistrer les transcriptions")
+args = parser.parse_args()
 
-liste_audios = glob(os.path.join(audio_dir, "*.wav"))
+audio_dir = args.input_dir
+output_dir = args.output_dir
+
+# Trouver tous les fichiers audio WAV et MP3
+liste_audios = glob(os.path.join(audio_dir, "*.wav")) + glob(os.path.join(audio_dir, "*.mp3"))
+liste_audios.sort() # Tri pour obtenir un ordre stable
 
 # Chargement du modèle Whisper
 model_size = "small"
@@ -29,4 +37,3 @@ for i, audio_path in enumerate(liste_audios, 1):
         f.write(transcription)
 
 print("Transcriptions terminées.")
-
