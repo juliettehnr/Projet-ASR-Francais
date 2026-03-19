@@ -1,0 +1,58 @@
+il y a des usages didactiques
+que nous développons ici
+des usages qui vont servir
+à l' enseignement aussi bien du français langue étrangère
+qu' à des observations sur le français langue maternelle
+comment est -ce qu' on peut euh identifier des éléments ?
+comment est -ce qu' on peut faire aujourd'hui des manuels ?
+et pour nous c' est particulièrement important parce qu' on a un master
+qui travaille sur les didacticiels
+et on a une articulation de ce travail de recherche
+avec une autre partie enseignement
+dans euh le master euh
+de didactique
+didactique
+une belle technologie
+et puis euh
+sur le traitement automatique des langues
+qui est l' autre aspect de l' exploitation c' est là que
+sur le traitement automatique des langues
+il y a des aspects sur lesquels nous ne travaillerons pas ici
+on ne peut pas tout faire
+euh donc on a fait des choix on a éliminé
+délibérément un certain nombre d' études c' est aussi
+la complémentarité dans laquelle nous sommes avec l' Equipex
+euh je vous ai dit que nous sommes avec quatre laboratoires
+celui d' Aix-en-Provence et un des deux grands laboratoires français de phonétique
+ici nous ne faisons pas du tout d' études phonétiques
+on ne cherche pas
+à interpréter à repérer ces éléments
+c' est de la phonologie mais c' est une autre discipline
+on ne on n' a pas comme ambition
+d' essayer de faire de la reconnaissance automatique de la parole
+on n' a pas comme ambition de euh chercher comment était articulé
+telle ou telle unité
+on ne travaille pas sur le dialogue homme-machine
+c' est des gens quand vous appelez les
+la SNCF et puis vous tombez sur une machine qui va vous répondre
+euh y a des études de linguistique là-dessus c' est très particulier
+y a des personnes
+qui ont
+qui ont travaillé dans notre domaine
+par exemple sur les échanges dans les tours de contrôle
+pour éviter les accidents
+comme les observations de ce type -là
+on ne travaille pas sur ces aspects
+c' est pas notre euh
+c' est pas notre domaine ici
+on ne travaille pas euh sur la génération automatique de textes par omission hein
+autant de domaines sur lesquels on pourrait être
+alors vous allez dire mais alors qu' est -ce qu' il reste ?
+hé bien il reste tout sur quoi euh nous travaillons
+alors nous on travaille sur euh
+sur euh ce que j' ai essayé de vous indiquer
+euh les travaux sur le lexique
+comment est -ce que ça s' organise ?
+comment est -ce que ça fonctionne ?
+comment est -ce que ça se met en série ?
+comment est -ce qu' on peut compiler très rapidement des dictionnaires ?
