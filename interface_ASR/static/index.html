@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluation ASR</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 620px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+      color: #222;
+      background: #fff;
+    }
+
+    h1 { font-size: 1.3rem; margin-bottom: .25rem; }
+    p.subtitle { color: #666; font-size: .875rem; margin-bottom: 2rem; }
+
+    .field { margin-bottom: 1.2rem; }
+
+    label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: .35rem;
+    }
+
+    label small { font-weight: 400; color: #888; }
+
+    input[type="file"],
+    select,
+    input[type="password"] {
+      width: 100%;
+      padding: .5rem .6rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: .875rem;
+      background: #fafafa;
+    }
+
+    #download-btn {
+      width: 100%;
+      margin-top: 1.2rem;
+      padding: .6rem;
+      background: #fff;
+      color: #222;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #download-btn:hover { background: #f5f5f5; }
+
+    input[type="file"]:focus,
+    select:focus,
+    input[type="password"]:focus {
+      outline: 2px solid #333;
+      outline-offset: 1px;
+    }
+
+    #api-key-field { display: none; }
+
+    button {
+      width: 100%;
+      padding: .65rem;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: .5rem;
+    }
+
+    button:hover { background: #444; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* Résultats */
+    #results { display: none; margin-top: 2rem; border-top: 1px solid #ddd; padding-top: 1.5rem; }
+
+    .wer-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .wer-good { color: #2e7d32; }
+    .wer-warn { color: #e65100; }
+    .wer-bad  { color: #b71c1c; }
+
+    .wer-label { color: #666; font-size: .8rem; margin-top: .2rem; margin-bottom: 1.2rem; }
+
+    .block-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: .3rem;
+      margin-top: 1rem;
+    }
+
+    .text-block {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: .7rem .8rem;
+      font-family: monospace;
+      font-size: .8rem;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    /* Erreur */
+    #error-box {
+      display: none;
+      margin-top: 1rem;
+      padding: .7rem .9rem;
+      background: #ffebee;
+      border: 1px solid #ef9a9a;
+      border-radius: 4px;
+      color: #b71c1c;
+      font-size: .85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Evaluation ASR</h1>
+  <p class="subtitle">Transcription automatique avec Whisper et Voxtral et calcul du WER</p>
+
+  <form id="eval-form">
+
+    <div class="field">
+      <label>Fichier audio <small>WAV ou MP3</small></label>
+      <input type="file" id="audio-input" accept=".wav,.mp3" required />
+    </div>
+
+    <div class="field">
+      <label>Transcription de référence <small>.txt</small></label>
+      <input type="file" id="ref-input" accept=".txt" required />
+    </div>
+
+    <div class="field">
+      <label>Modèle</label>
+      <select id="model-select">
+        <option value="whisper">Whisper</option>
+        <option value="voxtral">Voxtral</option>
+      </select>
+    </div>
+
+    <div class="field" id="api-key-field">
+      <label>Clé API Mistral</label>
+      <input type="password" id="api-key-input" placeholder="sk-..." autocomplete="off" />
+    </div>
+
+    <button type="submit" id="submit-btn">Transcrire et évaluer</button>
+
+  </form>
+
+  <div id="error-box"></div>
+
+  <div id="results">
+    <div class="wer-value" id="wer-display">—</div>
+    <div class="wer-label" id="wer-hint"></div>
+
+    <div class="block-label">Transcription du modèle</div>
+    <div class="text-block" id="hyp-raw-display"></div>
+
+    <div class="block-label">Référence (normalisée)</div>
+    <div class="text-block" id="ref-norm-display"></div>
+
+    <div class="block-label">Hypothèse (normalisée)</div>
+    <div class="text-block" id="hyp-norm-display"></div>
+
+    <button type="button" id="download-btn" onclick="downloadTranscription()">
+      Télécharger la transcription
+    </button>
+  </div>
+
+<script>
+  // Affichage conditionnel de la cle API
+  const modelSelect = document.getElementById('model-select');
+  const apiKeyField = document.getElementById('api-key-field');
+  const apiKeyInput = document.getElementById('api-key-input');
+
+  modelSelect.addEventListener('change', () => {
+    const need = modelSelect.value === 'voxtral';
+    apiKeyField.style.display = need ? 'block' : 'none';
+    apiKeyInput.required = need;
+  });
+
+  // Soumission du formulaire
+  const form      = document.getElementById('eval-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const results   = document.getElementById('results');
+  const errorBox  = document.getElementById('error-box');
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Traitement en cours...';
+    errorBox.style.display = 'none';
+    results.style.display = 'none';
+
+    const fd = new FormData();
+    fd.append('audio',          document.getElementById('audio-input').files[0]);
+    fd.append('reference_file', document.getElementById('ref-input').files[0]);
+    fd.append('model',          modelSelect.value);
+    fd.append('api_key',        apiKeyInput.value);
+
+    try {
+      const res  = await fetch('/transcribe', { method: 'POST', body: fd });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.detail || 'Erreur serveur.');
+        return;
+      }
+      showResults(data);
+    } catch (err) {
+      showError('Impossible de contacter le serveur : ' + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Transcrire et evaluer';
+    }
+  });
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+  }
+
+  function showResults(data) {
+    const pct = data.wer * 100;
+    const el  = document.getElementById('wer-display');
+    el.textContent = data.wer_percent;
+    el.className = 'wer-value ' + (pct < 20 ? 'wer-good' : pct < 50 ? 'wer-warn' : 'wer-bad');
+
+    document.getElementById('wer-hint').textContent =
+      pct < 20 ? 'Très bonne transcription.' :
+      pct < 50 ? 'Transcription acceptable.' :
+                 'Nombreuses erreurs.';
+
+    lastHypothesis = data.hypothesis;
+    lastFilename   = (data.filename || 'audio').replace(/\.[^.]+$/, '') + '_' + data.model + '_transcription.txt';
+    document.getElementById('hyp-raw-display').textContent  = data.hypothesis;
+    document.getElementById('ref-norm-display').textContent = data.reference_norm;
+    document.getElementById('hyp-norm-display').textContent = data.hypothesis_norm;
+
+    results.style.display = 'block';
+    results.scrollIntoView({ behavior: 'smooth' });
+  }
+  // Telechargement de la transcription brute
+  let lastHypothesis = '';
+  let lastFilename   = '';
+
+  function downloadTranscription() {
+    const blob = new Blob([lastHypothesis], { type: 'text/plain' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = lastFilename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+</script>
+</body>
+</html>
