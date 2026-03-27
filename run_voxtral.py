@@ -6,7 +6,7 @@ import tempfile
 audio_dir = "./audios"
 output_dir = "./transcriptions_voxtral"
 
-api_key = ""  # mettre une API key
+api_key = "IecBLPeXeGU30DvCkuGeEzOkyOvPKqnT"  # mettre une API key
 client = Mistral(api_key=api_key)
 
 os.makedirs(output_dir, exist_ok=True)
